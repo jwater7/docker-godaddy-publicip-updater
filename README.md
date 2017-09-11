@@ -8,21 +8,45 @@ Go to [GoDaddy developer keys](https://developer.godaddy.com/keys/), log in with
 
 It uses docker environment variables to control the behavior
 
-Required:
+### Required Configuration:
 ~~~
 GODADDY_API_KEY=<key>
-GODADDY_API_SECRET=<secret>
-GODADDY_DOMAINS=mydomain.com
-# GODADDY_DOMAINS=mydomain.com,anotherdomain.com
 ~~~
+Use the <key> from your godaddy account (see above)
 
-Optional:
+~~~
+GODADDY_API_SECRET=<secret>
+~~~
+Use the <secret> from your godaddy account (see above)
+
+~~~
+GODADDY_DOMAINS=mydomain.com
+~~~
+or like
+~~~
+GODADDY_DOMAINS=mydomain.com,anotherdomain.com
+~~~
+A comma-separated list of domains that you'd like to update
+
+### Optional Configuration:
 ~~~
 GODADDY_A_NAMES=@
-# GODADDY_A_NAMES=@,anothername
-GET_IP_WAIT_SEC=10
+~~~
+or like
+~~~
+GODADDY_A_NAMES=@,anothername
+~~~
+A comma-separated list of the 'A' record names you'd like to update.  By default it will use the '@' record.
+
+~~~
 UPDATE_INTERVAL_SEC=900
 ~~~
+This is the amount of time that the program waits before the public IP is checked for a change and then checks godaddy to check/update the record.  The default is to wait 15 minutes (900 seconds) between checks.
+
+~~~
+GET_IP_WAIT_SEC=10
+~~~
+This is the amount of time that the program waits before it tries again after a failure to get the host's public IP address.  This is a failsafe for the pif servers and should rarely need to be used.
 
 ### Command Line
 You can test it out like this:
@@ -53,9 +77,6 @@ A sample docker-compose:
       - "GODADDY_API_KEY=<key>"
       - "GODADDY_API_SECRET=<secret>"
       - "GODADDY_DOMAINS=mydomain.com"
-      - "GODADDY_A_NAMES=@,aname"
-      - "GET_IP_WAIT_SEC=30"
-      - "UPDATE_INTERVAL_SEC=1800"
     restart: always
 ~~~
 
