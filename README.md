@@ -9,24 +9,11 @@ Go to [GoDaddy developer keys](https://developer.godaddy.com/keys/), log in with
 It uses docker environment variables to control the behavior
 
 ### Required Configuration:
-~~~
-GODADDY_API_KEY=<key>
-~~~
-Use the <key> from your godaddy account (see above)
-
-~~~
-GODADDY_API_SECRET=<secret>
-~~~
-Use the <secret> from your godaddy account (see above)
-
-~~~
-GODADDY_DOMAINS=mydomain.com
-~~~
-or like
-~~~
-GODADDY_DOMAINS=mydomain.com,anotherdomain.com
-~~~
-A comma-separated list of domains that you'd like to update
+| Environment Variable | Value    | Description |
+| -------------------- | -------- | ----------- |
+| GODADDY_API_KEY      | <key>    | Use the 'key' from your godaddy account (see the Setup section above) |
+| GODADDY_API_SECRET   | <secret> | Use the 'secret' from your godaddy account (see the Setup section above) |
+| GODADDY_DOMAINS      | <csv>    | A comma-separated list of domains that you'd like to update.  For example: "mydomain.com" or "mydomain.com,anotherdomain.com" |
 
 ### Optional Configuration:
 ~~~
