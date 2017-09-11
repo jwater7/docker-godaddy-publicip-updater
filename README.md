@@ -9,16 +9,20 @@ Go to [GoDaddy developer keys](https://developer.godaddy.com/keys/), log in with
 It uses docker environment variables to control the behavior
 
 Required:
+~~~
 GODADDY_API_KEY=<key>
 GODADDY_API_SECRET=<secret>
 GODADDY_DOMAINS=mydomain.com
 # GODADDY_DOMAINS=mydomain.com,anotherdomain.com
+~~~
 
 Optional:
+~~~
 GODADDY_A_NAMES=@
 # GODADDY_A_NAMES=@,anothername
 GET_IP_WAIT_SEC=10
 UPDATE_INTERVAL_SEC=900
+~~~
 
 ### Command Line
 You can test it out like this:
