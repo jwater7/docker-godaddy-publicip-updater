@@ -9,31 +9,18 @@ Go to [GoDaddy developer keys](https://developer.godaddy.com/keys/), log in with
 It uses docker environment variables to control the behavior
 
 ### Required Configuration:
-| Environment Variable | Value    | Description |
-| -------------------- | -------- | ----------- |
-| GODADDY_API_KEY      | <key>    | Use the 'key' from your godaddy account (see the Setup section above) |
-| GODADDY_API_SECRET   | <secret> | Use the 'secret' from your godaddy account (see the Setup section above) |
-| GODADDY_DOMAINS      | <csv>    | A comma-separated list of domains that you'd like to update.  For example: "mydomain.com" or "mydomain.com,anotherdomain.com" |
+| Environment Variable | Value  | Description |
+| -------------------- | ------ | ----------- |
+| GODADDY_API_KEY      | key    | Use the 'key' from your godaddy account (see the Setup section above) |
+| GODADDY_API_SECRET   | secret | Use the 'secret' from your godaddy account (see the Setup section above) |
+| GODADDY_DOMAINS      | csv    | A comma-separated list of domains that you'd like to update.  For example: "mydomain.com" or "mydomain.com,anotherdomain.com" |
 
 ### Optional Configuration:
-~~~
-GODADDY_A_NAMES=@
-~~~
-or like
-~~~
-GODADDY_A_NAMES=@,anothername
-~~~
-A comma-separated list of the 'A' record names you'd like to update.  By default it will use the '@' record.
-
-~~~
-UPDATE_INTERVAL_SEC=900
-~~~
-This is the amount of time that the program waits before the public IP is checked for a change and then checks godaddy to check/update the record.  The default is to wait 15 minutes (900 seconds) between checks.
-
-~~~
-GET_IP_WAIT_SEC=10
-~~~
-This is the amount of time that the program waits before it tries again after a failure to get the host's public IP address.  This is a failsafe for the pif servers and should rarely need to be used.
+| Environment Variable | Value  | Default         | Description |
+| -------------------- | ------ | --------------- | ----------- |
+| GODADDY_A_NAMES      | csv    | '@'             | A comma-separated list of the 'A' record names you'd like to update.  For example: "home" or "@,anothername" |
+| UPDATE_INTERVAL_SEC  | int    | '900' (seconds) | This is the amount of time that the program waits before the public IP is checked for a change and then checks godaddy to check/update the record.  For example: "300" |
+| GET_IP_WAIT_SEC      | int    | '10' (seconds)  | This is the amount of time that the program waits before it tries again after a failure to get the host's public IP address.  This is a failsafe for the pif servers and should rarely need to be used.
 
 ### Command Line
 You can test it out like this:
