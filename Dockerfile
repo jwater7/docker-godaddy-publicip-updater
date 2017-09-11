@@ -7,5 +7,5 @@ RUN pip install godaddypy
 
 COPY godaddy-publicip-updater.py /
 
-CMD [ "python", "/godaddy-publicip-updater.py" ]
+CMD [ "python", "-u", "/godaddy-publicip-updater.py" ]
 
