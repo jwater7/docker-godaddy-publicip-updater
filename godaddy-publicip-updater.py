@@ -6,6 +6,20 @@ import traceback
 import time
 import pif
 import godaddypy
+import ipaddress
+
+import argparse
+import logging
+
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(name)s - %(message)s', level=logging.INFO)
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action="store_true", default=False, help="Verbose logging")
+args = parser.parse_args()
+if args.verbose:
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    logging.debug('Debug Logging Enabled')
 
 # Disable Unverified HTTPS request warning from pif
 import urllib3
@@ -26,28 +40,36 @@ g_client = godaddypy.Client(godaddypy.Account(api_key=godaddy_api_key, api_secre
 
 def update_godaddy_records(ip):
 
+    successful = True
     for domain in godaddy_domains:
         for a_name in godaddy_a_names:
 
-            print('Getting A records with {} for {}'.format(a_name, domain))
+            logging.debug('Getting A records with {} for {}'.format(a_name, domain))
             records = g_client.get_records(domain, name=a_name, record_type='A')
             if not records:
-                print('No record {} for {} found'.format(a_name, domain))
+                logging.warning('No record {} for {} found'.format(a_name, domain))
+                successful = False
                 # TODO add the record if configured to do so
                 continue
 
             for record in records:
                 if ip == record['data']:
-                    print('Record {} for {} is still {}, no update required'.format(a_name, domain, ip))
+                    logging.debug('Record {} for {} is still {}, no update required'.format(a_name, domain, ip))
                     continue
 
                 result = g_client.update_record_ip(ip, domain, name=a_name, record_type='A')
-                if result is True:
-                    print('Updated {} for {} to {}'.format(a_name, domain, ip))
+                if result is not True:
+                    logging.error('Failed to update {} for {} to {}'.format(a_name, domain, ip))
+                    successful = False
+                    continue
+
+                logging.info('Updated {} for {} to {}'.format(a_name, domain, ip))
+
+    return successful
 
 def loop_forever():
 
-    public_ip = False
+    public_ip_cache = False
 
     # Loop forever
     while True:
@@ -55,7 +77,18 @@ def loop_forever():
         # Go get our current public IP address
         new_ip = False
         while not new_ip:
-            new_ip = pif.get_public_ip()
+            try:
+                pub_ip = pif.get_public_ip()
+                # Check for valid ip
+                try:
+                    ipaddress.ip_address(pub_ip)
+                    new_ip = pub_ip
+                except:
+                    logging.error('Got an invalid ip address')
+                    logging.debug('ip address {}'.format(pub_ip), exc_info=True)
+            except:
+                logging.exception('Got exception getting public IP')
+
             # Done if we got one
             if new_ip:
                 break
@@ -63,17 +96,16 @@ def loop_forever():
             time.sleep(get_ip_wait_sec)
 
         # If we got the same IP address, we will try again later
-        if public_ip != new_ip:
-            print('new-ip: {}, old-ip: {}'.format(new_ip, public_ip))
-            public_ip = new_ip
-
+        if public_ip_cache != new_ip:
             # Update the records at godaddy
             try:
-                update_godaddy_records(public_ip)
+                worked = update_godaddy_records(new_ip)
+                if worked:
+                    #cache so we dont try again if everything went good
+                    logging.info('new-ip: {}, old-ip: {}'.format(new_ip, public_ip_cache))
+                    public_ip_cache = new_ip
             except:
-                print('Unable to update godaddy records')
-                exc_type, exc_value, exc_traceback = sys.exc_info()
-                traceback.print_exception(exc_type, exc_value, exc_traceback)
+                logging.exception('Got exception updating godaddy records')
 
         time.sleep(update_interval_sec)
 
