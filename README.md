@@ -20,7 +20,8 @@ It uses docker environment variables to control the behavior
 | -------------------- | ------ | --------------- | ----------- |
 | GODADDY_A_NAMES      | csv    | '@'             | A comma-separated list of the 'A' record names you'd like to update.  For example: "home" or "@,anothername" |
 | UPDATE_INTERVAL_SEC  | int    | '900' (seconds) | This is the amount of time that the program waits before the public IP is checked for a change and then checks godaddy to check/update the record.  For example: "300" |
-| GET_IP_WAIT_SEC      | int    | '10' (seconds)  | This is the amount of time that the program waits before it tries again after a failure to get the host's public IP address.  This is a failsafe for the pif servers and should rarely need to be used.
+| GET_IP_WAIT_SEC      | int    | '10' (seconds)  | This is the amount of time that the program waits before it tries again after a failure to get the host's public IP address.  This is a failsafe for the pif servers and should rarely need to be used. |
+| UPDATER_CONFIG_FILE  | string | None            | This is a file path to a JSON formated config file which if it exists would contain a single-level object with default values for the environment variable names given here.  Environment variables specified would override values in the config file.  For example, it may contain: {"GODADDY_A_NAMES": "@,anothername"} |
 
 ### Command Line
 You can test it out like this:
@@ -51,6 +52,9 @@ A sample docker-compose:
       - "GODADDY_API_KEY=<key>"
       - "GODADDY_API_SECRET=<secret>"
       - "GODADDY_DOMAINS=mydomain.com"
+      - "UPDATER_CONFIG_FILE=/config.json"
+    volumes:
+      - "./config.json:/config.json"
     restart: always
 ~~~
 

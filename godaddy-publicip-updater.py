@@ -7,6 +7,7 @@ import time
 import pif
 import godaddypy
 import ipaddress
+import json
 
 import argparse
 import logging
@@ -25,15 +26,38 @@ if args.verbose:
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+# Read default config file which env will override
+json_config = None
+try:
+    config_file = os.environ.get('UPDATER_CONFIG_FILE', None) # no default
+    if config_file:
+      with open(config_file) as config_file_data:
+        json_config = json.load(config_file_data)
+except:
+    logging.error('No default config found, continuing.', exc_info=True)
+
+def get_config_value(key, default_value=None):
+    v = default_value
+    # Get from json config as default
+    if json_config:
+        v = json_config.get(key, v)
+
+    # if no default then it is required and return env var
+    if not v:
+        return os.environ[key]
+
+    # otherwise try to override with env var
+    return os.environ.get(key, v)
+
 # Required ENV
-godaddy_api_key = os.environ['GODADDY_API_KEY']
-godaddy_api_secret = os.environ['GODADDY_API_SECRET']
-godaddy_domains = os.environ['GODADDY_DOMAINS'].split(',')
+godaddy_api_key = get_config_value('GODADDY_API_KEY')
+godaddy_api_secret = get_config_value('GODADDY_API_SECRET')
+godaddy_domains = get_config_value('GODADDY_DOMAINS').split(',')
 
 # Optional ENV
-godaddy_a_names = os.environ.get('GODADDY_A_NAMES', '@').split(',')
-get_ip_wait_sec = os.environ.get('GET_IP_WAIT_SEC', 10) # default 10 sec
-update_interval_sec = os.environ.get('UPDATE_INTERVAL_SEC', 900) # default 15 min
+godaddy_a_names = get_config_value('GODADDY_A_NAMES', '@').split(',')
+get_ip_wait_sec = get_config_value('GET_IP_WAIT_SEC', 10) # default 10 sec
+update_interval_sec = get_config_value('UPDATE_INTERVAL_SEC', 900) # default 15 min
 
 # Create the godaddypy client using the provided keys
 g_client = godaddypy.Client(godaddypy.Account(api_key=godaddy_api_key, api_secret=godaddy_api_secret))
