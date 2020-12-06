@@ -18,6 +18,8 @@ It uses docker environment variables to control the behavior
 ### Optional Configuration:
 | Environment Variable | Value  | Default         | Description |
 | -------------------- | ------ | --------------- | ----------- |
+| GODADDY_RECORD_TYPE  | string | 'A'             | The type of the record that you'd like to update.  For example: "A" or "AAAA" |
+| GODADDY_IPV6_GET_API | string | 'https://api6.ipify.org'              | The api url which use to fetch your ipv6 address.  For example: "https://api6.ipify.org" |
 | GODADDY_A_NAMES      | csv    | '@'             | A comma-separated list of the 'A' record names you'd like to update.  For example: "home" or "@,anothername" |
 | UPDATE_INTERVAL_SEC  | int    | '900' (seconds) | This is the amount of time that the program waits before the public IP is checked for a change and then checks godaddy to check/update the record.  For example: "300" |
 | GET_IP_WAIT_SEC      | int    | '10' (seconds)  | This is the amount of time that the program waits before it tries again after a failure to get the host's public IP address.  This is a failsafe for the pif servers and should rarely need to be used. |
