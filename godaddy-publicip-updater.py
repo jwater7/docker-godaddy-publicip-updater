@@ -12,6 +12,9 @@ import json
 import argparse
 import logging
 
+import urllib
+import string
+
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(name)s - %(message)s', level=logging.INFO)
 
 parser = argparse.ArgumentParser()
@@ -25,6 +28,9 @@ if args.verbose:
 # Disable Unverified HTTPS request warning from pif
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# For developemnt test purpose.
+# os.environ.setdefault('UPDATER_CONFIG_FILE', "./config.json")
 
 # Read default config file which env will override
 json_config = None
@@ -58,9 +64,18 @@ godaddy_domains = get_config_value('GODADDY_DOMAINS').split(',')
 godaddy_a_names = get_config_value('GODADDY_A_NAMES', '@').split(',')
 get_ip_wait_sec = get_config_value('GET_IP_WAIT_SEC', 10) # default 10 sec
 update_interval_sec = get_config_value('UPDATE_INTERVAL_SEC', 900) # default 15 min
+ipv6_get_api = get_config_value('IPV6_GET_API', 'https://api6.ipify.org') # default https://api6.ipify.org
+record_type = get_config_value('RECORD_TYPE', 'A') # default 'A'
 
 # Create the godaddypy client using the provided keys
 g_client = godaddypy.Client(godaddypy.Account(api_key=godaddy_api_key, api_secret=godaddy_api_secret))
+
+
+def url_postget(url):
+    response = urllib.request.urlopen(url)
+    str = response.read()
+    return str
+
 
 def update_godaddy_records(ip):
 
@@ -69,7 +84,7 @@ def update_godaddy_records(ip):
         for a_name in godaddy_a_names:
 
             logging.debug('Getting A records with {} for {}'.format(a_name, domain))
-            records = g_client.get_records(domain, name=a_name, record_type='A')
+            records = g_client.get_records(domain, name=a_name, record_type=record_type)
             if not records:
                 logging.warning('No record {} for {} found'.format(a_name, domain))
                 successful = False
@@ -81,7 +96,7 @@ def update_godaddy_records(ip):
                     logging.debug('Record {} for {} is still {}, no update required'.format(a_name, domain, ip))
                     continue
 
-                result = g_client.update_record_ip(ip, domain, name=a_name, record_type='A')
+                result = g_client.update_record_ip(ip, domain, name=a_name, record_type=record_type)
                 if result is not True:
                     logging.error('Failed to update {} for {} to {}'.format(a_name, domain, ip))
                     successful = False
@@ -102,7 +117,14 @@ def loop_forever():
         new_ip = False
         while not new_ip:
             try:
-                pub_ip = pif.get_public_ip()
+                if record_type == 'A':
+                    pub_ip = pif.get_public_ip()
+                elif record_type == 'AAAA':
+                    pub_ip = bytes.decode(url_postget(ip_get_url))
+                else:
+                    logging.error("record type must be 'A' or 'AAAA' .")
+                    break
+                
                 # Check for valid ip
                 try:
                     ipaddress.ip_address(pub_ip)
