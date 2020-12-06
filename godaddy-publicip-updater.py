@@ -120,7 +120,7 @@ def loop_forever():
                 if record_type == 'A':
                     pub_ip = pif.get_public_ip()
                 elif record_type == 'AAAA':
-                    pub_ip = bytes.decode(url_postget(ip_get_url))
+                    pub_ip = bytes.decode(url_postget(ipv6_get_api))
                 else:
                     logging.error("record type must be 'A' or 'AAAA' .")
                     break
