@@ -56,8 +56,8 @@ godaddy_domains = get_config_value('GODADDY_DOMAINS').split(',')
 
 # Optional ENV
 godaddy_a_names = get_config_value('GODADDY_A_NAMES', '@').split(',')
-get_ip_wait_sec = get_config_value('GET_IP_WAIT_SEC', 10) # default 10 sec
-update_interval_sec = get_config_value('UPDATE_INTERVAL_SEC', 900) # default 15 min
+get_ip_wait_sec = int(get_config_value('GET_IP_WAIT_SEC', 10)) # default 10 sec
+update_interval_sec = int(get_config_value('UPDATE_INTERVAL_SEC', 900)) # default 15 min
 
 # Create the godaddypy client using the provided keys
 g_client = godaddypy.Client(godaddypy.Account(api_key=godaddy_api_key, api_secret=godaddy_api_secret))
